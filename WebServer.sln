@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer.Server", "WebServer.Server\WebServer.Server.csproj", "{E8EE7416-CA56-4710-B016-AC42132C86B5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer.SDK", "WebServer.SDK\WebServer.SDK.csproj", "{ED2C6000-A25E-4791-BE40-801536EAC323}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{E8EE7416-CA56-4710-B016-AC42132C86B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8EE7416-CA56-4710-B016-AC42132C86B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8EE7416-CA56-4710-B016-AC42132C86B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED2C6000-A25E-4791-BE40-801536EAC323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED2C6000-A25E-4791-BE40-801536EAC323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED2C6000-A25E-4791-BE40-801536EAC323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED2C6000-A25E-4791-BE40-801536EAC323}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
