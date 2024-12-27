@@ -1,4 +1,4 @@
-namespace WebServer.SDK.Responses.BodyWriter;
+namespace WebServer.SDK.Responses.BodyWriters;
 
 public interface IResponseBodyWriter
 {

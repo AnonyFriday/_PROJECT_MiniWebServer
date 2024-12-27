@@ -17,6 +17,5 @@
 
     <ItemGroup>
       <Folder Include="Dtos\" />
-      <Folder Include="ResponseWriters\" />
     </ItemGroup>
 </Project>

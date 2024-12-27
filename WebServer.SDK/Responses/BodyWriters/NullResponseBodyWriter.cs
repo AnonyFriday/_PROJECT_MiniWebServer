@@ -1,4 +1,4 @@
-﻿namespace WebServer.SDK.Responses.BodyWriter;
+﻿namespace WebServer.SDK.Responses.BodyWriters;
 
 /// <summary>
 /// Follow the Null Object Design Pattern

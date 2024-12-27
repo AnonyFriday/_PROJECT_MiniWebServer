@@ -1,4 +1,4 @@
-﻿using WebServer.SDK.Responses.BodyWriter;
+﻿using WebServer.SDK.Responses.BodyWriters;
 
 namespace WebServer.SDK.Responses;
 

@@ -1,13 +1,13 @@
 ﻿using System.Net.Sockets;
 
-namespace WebServer.SDK.Requests.RequestReaders;
+namespace WebServer.SDK.Responses.ResponseWriters;
 
-public interface IRequestReaderFactory
+public interface IResponseWriterFactory
 {
     /// <summary>
     /// Socket is maintained throughout the project, socket is destroyed ouside
     /// </summary>
     /// <param name="socket"></param>
     /// <returns></returns>
-    IRequestReader Create(Socket socket);
+    IResponseWriter Create(Socket socket);
 }

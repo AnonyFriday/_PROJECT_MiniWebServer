@@ -5,7 +5,8 @@ using WebServer.SDK;
 using WebServer.SDK.Requests;
 using WebServer.SDK.Requests.RequestReaders;
 using WebServer.SDK.Responses;
-using WebServer.SDK.Responses.BodyWriter;
+using WebServer.SDK.Responses.BodyWriters;
+using WebServer.SDK.Responses.ResponseWriters;
 using WebServer.Server.RequestReaders;
 
 namespace WebServer.Server;
@@ -18,20 +19,21 @@ public class Worker : BackgroundService
 
     private WebServerOptions _options;
     private readonly ILogger<Worker> _logger;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly IRequestReaderFactory _requestReaderFactory;
+    private readonly IResponseWriterFactory _responseWriterFactory;
     private List<ClientConnection> _clientConnections;
 
     // ===========================
     // === Constructors
     // ===========================
 
-    public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, WebServerOptions options)
+    public Worker(ILogger<Worker> logger, WebServerOptions options,
+        IRequestReaderFactory requestReaderFactory, IResponseWriterFactory responseWriterFactory)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _logger = logger;
-        _loggerFactory = loggerFactory;
-        _requestReaderFactory = new RequestReaderFactory(_loggerFactory);
+        _requestReaderFactory = requestReaderFactory;
+        _responseWriterFactory = responseWriterFactory;
         _clientConnections = new List<ClientConnection>();
     }
 
@@ -93,6 +95,7 @@ public class Worker : BackgroundService
             var cts = new CancellationTokenSource();
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, stoppingToken).Token;
             IRequestReader requestReader = _requestReaderFactory.Create(clientSocket);
+            IResponseWriter responseWriter = _responseWriterFactory.Create(clientSocket);
 
             // Create Request Object and Parsing the incoming string request into Request Object
             WRequest request = await requestReader.ReadRequestAsync(combinedToken);
@@ -109,8 +112,8 @@ public class Worker : BackgroundService
 
             // Handle Request  
 
-            // Send back the response
-            await SendRespondToClientAsync(clientSocket, response);
+            // Send response back to the client
+            await responseWriter.SendRespondToClientAsync(response);
         }
         catch (Exception ex)
         {
@@ -121,40 +124,5 @@ public class Worker : BackgroundService
             // Close the client socket
             clientSocket.Close();
         }
-    }
-
-    /// <summary>
-    /// Sending back respond object to the client
-    /// </summary>
-    /// <param name="clientSocket"></param>
-    private async Task SendRespondToClientAsync(Socket clientSocket, WResponse response)
-    {
-        var byteStream = new NetworkStream(clientSocket);
-        var textWriterStream = new StreamWriter(byteStream);
-
-        string reasonPhrase = response.ReasonPhrase;
-        if (string.IsNullOrEmpty(reasonPhrase))
-        {
-            reasonPhrase = WHttpResponsePhrases.GetByCode(response.ResponseCode);
-        }
-
-        string statusLine = string.Join(" ", response.ProtocolVersion, response.ResponseCode, reasonPhrase);
-
-        await textWriterStream.WriteLineAsync(statusLine);
-        await textWriterStream.WriteLineAsync($"Content-Type: {response.ContentType}");
-        await textWriterStream.WriteLineAsync($"Content-Length: {response.ContentLength}");
-        await textWriterStream.WriteLineAsync("");
-
-        // Write down text writer stream into the network stream underlying
-        await textWriterStream.FlushAsync();
-
-        // Write the body under the network stream, not the text stream
-        if (response.ContentLength > 0)
-        {
-            await response.ResponseBodyWriter.WriteAsync(byteStream);
-        }
-
-        // Sending all bytes to the client
-        await byteStream.FlushAsync();
     }
 }

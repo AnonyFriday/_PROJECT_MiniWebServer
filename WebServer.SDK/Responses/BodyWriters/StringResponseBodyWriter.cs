@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace WebServer.SDK.Responses.BodyWriter;
+namespace WebServer.SDK.Responses.BodyWriters;
 
 public class StringResponseBodyWriter : IResponseBodyWriter
 {
