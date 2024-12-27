@@ -2,7 +2,7 @@
 
 namespace WebServer.Server.Requests;
 
-public class RequestHttpHeaderLine
+public class RequestLine
 {
     public WMethods Method { get; set; }
     public string UriPath { get; set; } = string.Empty;

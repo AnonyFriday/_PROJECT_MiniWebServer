@@ -28,7 +28,7 @@ public class Worker : BackgroundService
     }
 
     // ===========================
-    // === Methods
+    // === Method
     // ===========================
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -64,13 +64,6 @@ public class Worker : BackgroundService
                     HandlerTask = t
                 });
             }
-
-            // if (_logger.IsEnabled(LogLevel.Information))
-            // {
-            //     _logger.LogInformation("Server running at: {time}", DateTimeOffset.Now);
-            // }
-            //
-            // await Task.Delay(1000, stoppingToken);
         }
 
         // If all tasks are finish then closing the server socket
@@ -136,20 +129,36 @@ public class Worker : BackgroundService
     {
         var byteStream = new NetworkStream(clientSocket);
         var textReader = new StreamReader(byteStream, Encoding.UTF8);
+        var requestBuilder = new RequestBuilder();
 
         // Instead of checking key and mapping to WRequest for multiple
         // of methods: GET, POST, PUT, DELETE, we create
-        var requestLine = await textReader.ReadLineAsync(cancellationTokenSource);
-        _logger.LogInformation("{requestLine}", requestLine);
+        var aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
+        _logger.LogInformation("{requestLine}", aLineOfRequestString);
 
-
-        // in this case, we just read the first line only => GET
-        if (RequestHttpHeaderLineParser.TryParse(requestLine, out var requestHttpHeaderLineHeader))
+        // Parsing the Request Line 
+        if (!string.IsNullOrEmpty(aLineOfRequestString))
         {
+            if (RequestLineParser.TryParse(aLineOfRequestString, out var requestLine))
+            {
+                requestBuilder.AddRequestLine(requestLine);
+                _logger.LogInformation("{requestLine}", requestLine);
+            }
         }
 
-        // Build a request of GET, POST, PUT, DELETE base on Method
-        var requestBuilder = new RequestBuilder();
+        // Parsing Header Lines
+        aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
+        while (!string.IsNullOrEmpty(aLineOfRequestString))
+        {
+            if (HeaderLineParser.TryParse(aLineOfRequestString, out var headerLine))
+            {
+                requestBuilder.AddHeaderLine(headerLine);
+                _logger.LogInformation("{headerLine}", headerLine);
+                aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
+            }
+        }
+
+        // Build a request of GET, POST, PUT, DELETE base on Request Line and Header Line
         return requestBuilder.Build();
     }
 }
