@@ -2,7 +2,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using WebServer.SDK;
+using WebServer.Server.Dtos.Requests.Readers;
 using WebServer.Server.Requests;
+using WebServer.Server.Requests.Readers;
 
 namespace WebServer.Server;
 
@@ -14,16 +16,18 @@ public class Worker : BackgroundService
 
     private WebServerOptions _options;
     private readonly ILogger<Worker> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private List<ClientConnection> _clientConnections;
 
     // ===========================
     // === Constructors
     // ===========================
 
-    public Worker(ILogger<Worker> logger, WebServerOptions options)
+    public Worker(ILogger<Worker> logger, ILoggerFactory loggerFactory, WebServerOptions options)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _logger = logger;
+        _loggerFactory = loggerFactory;
         _clientConnections = new List<ClientConnection>();
     }
 
@@ -84,9 +88,11 @@ public class Worker : BackgroundService
             // Create 1 cancellation token restricted reading request in 3s
             var cts = new CancellationTokenSource();
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, stoppingToken).Token;
+            IRequestReader requestReader =
+                new DefaultRequestReader(_loggerFactory.CreateLogger<DefaultRequestReader>(), clientSocket);
 
             // Parsing the incoming text into request object
-            WRequest request = await ParseRequestAsync(clientSocket, combinedToken);
+            WRequest request = await requestReader.ReadRequestAsync(combinedToken);
 
             // Create Response Object
 
@@ -117,48 +123,5 @@ public class Worker : BackgroundService
 
         await textWriter.WriteLineAsync("200 OK");
         await textWriter.FlushAsync();
-    }
-
-    /// <summary>
-    /// Reading Request only cost 3s
-    /// </summary>
-    /// <param name="clientSocket"></param>
-    /// <param name="stoppingToken"></param>
-    /// <returns></returns>
-    private async Task<WRequest> ParseRequestAsync(Socket clientSocket, CancellationToken cancellationTokenSource)
-    {
-        var byteStream = new NetworkStream(clientSocket);
-        var textReader = new StreamReader(byteStream, Encoding.UTF8);
-        var requestBuilder = new RequestBuilder();
-
-        // Instead of checking key and mapping to WRequest for multiple
-        // of methods: GET, POST, PUT, DELETE, we create
-        var aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
-        _logger.LogInformation("{requestLine}", aLineOfRequestString);
-
-        // Parsing the Request Line 
-        if (!string.IsNullOrEmpty(aLineOfRequestString))
-        {
-            if (RequestLineParser.TryParse(aLineOfRequestString, out var requestLine))
-            {
-                requestBuilder.AddRequestLine(requestLine);
-                _logger.LogInformation("{requestLine}", requestLine);
-            }
-        }
-
-        // Parsing Header Lines
-        aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
-        while (!string.IsNullOrEmpty(aLineOfRequestString))
-        {
-            if (HeaderLineParser.TryParse(aLineOfRequestString, out var headerLine))
-            {
-                requestBuilder.AddHeaderLine(headerLine);
-                _logger.LogInformation("{headerLine}", headerLine);
-                aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
-            }
-        }
-
-        // Build a request of GET, POST, PUT, DELETE base on Request Line and Header Line
-        return requestBuilder.Build();
     }
 }
