@@ -1,6 +1,6 @@
-﻿using System.Net.Sockets;
+﻿using WebServer.SDK.Responses;
 
-namespace WebServer.SDK.Responses.ResponseWriters;
+namespace WebServer.SDK.ResponseWriters;
 
 public interface IResponseWriter
 {

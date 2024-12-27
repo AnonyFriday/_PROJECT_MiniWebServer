@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace WebServer.SDK.Requests.RequestReaders;
+namespace WebServer.SDK.RequestReaders;
 
 public interface IRequestReaderFactory
 {

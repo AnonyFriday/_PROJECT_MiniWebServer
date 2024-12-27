@@ -8,6 +8,7 @@ public class WResponse
     public WHttpResponseStatusCodes ResponseCode { get; set; } = WHttpResponseStatusCodes.ClientError_NotFound;
     public string ReasonPhrase { get; set; } = string.Empty;
     public int ContentLength { get; set; } = 0;
+    public string Connection { get; set; } = "close";
     public string ContentType { get; set; } = "text/html";
 
     /// <summary>

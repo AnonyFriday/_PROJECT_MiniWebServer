@@ -1,5 +1,5 @@
-using WebServer.SDK.Requests.RequestReaders;
-using WebServer.SDK.Responses.ResponseWriters;
+using WebServer.SDK.RequestReaders;
+using WebServer.SDK.ResponseWriters;
 using WebServer.Server;
 using WebServer.Server.RequestReaders;
 using WebServer.Server.ResponseWriters;

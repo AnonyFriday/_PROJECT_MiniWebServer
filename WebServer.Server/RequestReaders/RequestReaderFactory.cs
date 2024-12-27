@@ -1,5 +1,5 @@
 ﻿using System.Net.Sockets;
-using WebServer.SDK.Requests.RequestReaders;
+using WebServer.SDK.RequestReaders;
 
 namespace WebServer.Server.RequestReaders;
 

@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using WebServer.SDK.Responses;
-using WebServer.SDK.Responses.ResponseWriters;
+using WebServer.SDK.ResponseWriters;
 
 namespace WebServer.Server.ResponseWriters;
 

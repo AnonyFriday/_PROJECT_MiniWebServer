@@ -2,11 +2,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using WebServer.SDK;
+using WebServer.SDK.RequestReaders;
 using WebServer.SDK.Requests;
-using WebServer.SDK.Requests.RequestReaders;
 using WebServer.SDK.Responses;
 using WebServer.SDK.Responses.BodyWriters;
-using WebServer.SDK.Responses.ResponseWriters;
+using WebServer.SDK.ResponseWriters;
 using WebServer.Server.RequestReaders;
 
 namespace WebServer.Server;
@@ -91,18 +91,19 @@ public class Worker : BackgroundService
     {
         try
         {
-            // Create 1 cancellation token restricted reading request in 3s
+            // 1. Create 1 cancellation token restricted reading request in 3s
             var cts = new CancellationTokenSource();
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, stoppingToken).Token;
             IRequestReader requestReader = _requestReaderFactory.Create(clientSocket);
             IResponseWriter responseWriter = _responseWriterFactory.Create(clientSocket);
 
-            // Create Request Object and Parsing the incoming string request into Request Object
+            // 2. Create Request Object and Parsing the incoming string request into Request Object
             WRequest request = await requestReader.ReadRequestAsync(combinedToken);
 
-            // Create Response Object
+            // 3. Create Response Object
             var fakeContent =
                 "<!DOCTYPE html>\n<html>\n<body>\n\n<h1>My First Heading</h1>\n<p>My first paragraph.</p>\n\n</body>\n</html>";
+            
             WResponse response = new WResponse()
             {
                 ContentType = "text/html;charset=utf-8",
@@ -110,9 +111,9 @@ public class Worker : BackgroundService
                 ResponseBodyWriter = new StringResponseBodyWriter(fakeContent)
             };
 
-            // Handle Request  
+            // 4. Handle Request  
 
-            // Send response back to the client
+            // 5. Send response back to the client
             await responseWriter.SendRespondToClientAsync(response);
         }
         catch (Exception ex)

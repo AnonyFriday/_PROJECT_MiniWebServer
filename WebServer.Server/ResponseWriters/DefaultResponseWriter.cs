@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using WebServer.SDK.Responses;
-using WebServer.SDK.Responses.ResponseWriters;
+using WebServer.SDK.ResponseWriters;
 
 namespace WebServer.Server.ResponseWriters;
 
@@ -46,6 +46,7 @@ public class DefaultResponseWriter : IResponseWriter
         await textWriterStream.WriteLineAsync(statusLine);
         await textWriterStream.WriteLineAsync($"Content-Type: {response.ContentType}");
         await textWriterStream.WriteLineAsync($"Content-Length: {response.ContentLength}");
+        await textWriterStream.WriteLineAsync($"Connection: {response.Connection}");
         await textWriterStream.WriteLineAsync("");
 
         // Write down text writer stream into the network stream underlying
