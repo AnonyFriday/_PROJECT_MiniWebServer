@@ -3,9 +3,10 @@ using System.Net.Sockets;
 using System.Text;
 using WebServer.SDK;
 using WebServer.SDK.Requests;
+using WebServer.SDK.Requests.RequestReaders;
 using WebServer.SDK.Responses;
 using WebServer.SDK.Responses.BodyWriter;
-using WebServer.Server.Readers;
+using WebServer.Server.RequestReaders;
 
 namespace WebServer.Server;
 
@@ -18,6 +19,7 @@ public class Worker : BackgroundService
     private WebServerOptions _options;
     private readonly ILogger<Worker> _logger;
     private readonly ILoggerFactory _loggerFactory;
+    private readonly IRequestReaderFactory _requestReaderFactory;
     private List<ClientConnection> _clientConnections;
 
     // ===========================
@@ -29,6 +31,7 @@ public class Worker : BackgroundService
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _logger = logger;
         _loggerFactory = loggerFactory;
+        _requestReaderFactory = new RequestReaderFactory(_loggerFactory);
         _clientConnections = new List<ClientConnection>();
     }
 
@@ -89,8 +92,7 @@ public class Worker : BackgroundService
             // Create 1 cancellation token restricted reading request in 3s
             var cts = new CancellationTokenSource();
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, stoppingToken).Token;
-            IRequestReader requestReader =
-                new DefaultRequestReader(_loggerFactory.CreateLogger<DefaultRequestReader>(), clientSocket);
+            IRequestReader requestReader = _requestReaderFactory.Create(clientSocket);
 
             // Create Request Object and Parsing the incoming string request into Request Object
             WRequest request = await requestReader.ReadRequestAsync(combinedToken);

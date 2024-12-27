@@ -1,7 +1,4 @@
-﻿using WebServer.SDK;
-using WebServer.SDK.Requests;
-
-namespace WebServer.Server.Readers;
+﻿namespace WebServer.SDK.Requests.RequestReaders;
 
 public interface IRequestReader
 {

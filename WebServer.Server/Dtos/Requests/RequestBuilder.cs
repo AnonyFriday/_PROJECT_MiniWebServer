@@ -4,6 +4,9 @@ using WebServer.SDK.Requests;
 
 namespace WebServer.Server.Dtos.Requests;
 
+/// <summary>
+/// Create an object by adding multiple props of the object
+/// </summary>
 public class RequestBuilder
 {
     public WMethods Method { get; private set; }

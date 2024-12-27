@@ -1,10 +1,10 @@
 ﻿using System.Net.Sockets;
 using System.Text;
-using WebServer.SDK;
 using WebServer.SDK.Requests;
+using WebServer.SDK.Requests.RequestReaders;
 using WebServer.Server.Dtos.Requests;
 
-namespace WebServer.Server.Readers;
+namespace WebServer.Server.RequestReaders;
 
 public class DefaultRequestReader : IRequestReader
 {
