@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 
-namespace WebServer.SDK;
+namespace WebServer.SDK.Requests;
 
 public class WRequest
 {

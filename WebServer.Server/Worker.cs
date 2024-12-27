@@ -2,6 +2,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using WebServer.SDK;
+using WebServer.SDK.Requests;
+using WebServer.SDK.Responses;
+using WebServer.SDK.Responses.BodyWriter;
 using WebServer.Server.Readers;
 
 namespace WebServer.Server;
@@ -93,16 +96,24 @@ public class Worker : BackgroundService
             WRequest request = await requestReader.ReadRequestAsync(combinedToken);
 
             // Create Response Object
+            var fakeContent =
+                "<!DOCTYPE html>\n<html>\n<body>\n\n<h1>My First Heading</h1>\n<p>My first paragraph.</p>\n\n</body>\n</html>";
+            WResponse response = new WResponse()
+            {
+                ContentType = "text/html;charset=utf-8",
+                ContentLength = fakeContent.Length,
+                ResponseBodyWriter = new StringResponseBodyWriter(fakeContent)
+            };
 
             // Handle Request  
 
             // Send back the response
-            await SendRespondToClientAsync(clientSocket);
+            await SendRespondToClientAsync(clientSocket, response);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
         }
-
         finally
         {
             // Close the client socket
@@ -114,16 +125,34 @@ public class Worker : BackgroundService
     /// Sending back respond object to the client
     /// </summary>
     /// <param name="clientSocket"></param>
-    private async Task SendRespondToClientAsync(Socket clientSocket)
+    private async Task SendRespondToClientAsync(Socket clientSocket, WResponse response)
     {
         var byteStream = new NetworkStream(clientSocket);
         var textWriterStream = new StreamWriter(byteStream);
 
-        await textWriterStream.WriteLineAsync("HTTP/1.1 200 OK");
-        await textWriterStream.WriteLineAsync("Content-Type: text/plain");
-        await textWriterStream.WriteLineAsync("");
-        await textWriterStream.WriteLineAsync("Hello World!");
+        string reasonPhrase = response.ReasonPhrase;
+        if (string.IsNullOrEmpty(reasonPhrase))
+        {
+            reasonPhrase = WHttpResponsePhrases.GetByCode(response.ResponseCode);
+        }
 
+        string statusLine = string.Join(" ", response.ProtocolVersion, response.ResponseCode, reasonPhrase);
+
+        await textWriterStream.WriteLineAsync(statusLine);
+        await textWriterStream.WriteLineAsync($"Content-Type: {response.ContentType}");
+        await textWriterStream.WriteLineAsync($"Content-Length: {response.ContentLength}");
+        await textWriterStream.WriteLineAsync("");
+
+        // Write down text writer stream into the network stream underlying
         await textWriterStream.FlushAsync();
+
+        // Write the body under the network stream, not the text stream
+        if (response.ContentLength > 0)
+        {
+            await response.ResponseBodyWriter.WriteAsync(byteStream);
+        }
+
+        // Sending all bytes to the client
+        await byteStream.FlushAsync();
     }
 }

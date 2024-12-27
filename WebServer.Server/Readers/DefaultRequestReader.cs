@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using WebServer.SDK;
+using WebServer.SDK.Requests;
 using WebServer.Server.Dtos.Requests;
 
 namespace WebServer.Server.Readers;

@@ -1,4 +1,4 @@
-﻿namespace WebServer.SDK;
+﻿namespace WebServer.SDK.Requests;
 
 public enum WMethods
 {

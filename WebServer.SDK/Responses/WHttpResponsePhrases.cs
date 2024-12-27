@@ -1,4 +1,4 @@
-﻿namespace WebServer.SDK;
+﻿namespace WebServer.SDK.Responses;
 
 public static class WHttpResponsePhrases
 {

@@ -1,4 +1,4 @@
-﻿namespace WebServer.SDK;
+﻿namespace WebServer.SDK.Responses;
 
 /// <summary>
 /// Reference to the HTTP Status Code of the MDN specs <br />

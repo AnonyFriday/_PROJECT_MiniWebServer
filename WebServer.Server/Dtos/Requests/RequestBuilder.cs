@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 using WebServer.SDK;
+using WebServer.SDK.Requests;
 
 namespace WebServer.Server.Dtos.Requests;
 
