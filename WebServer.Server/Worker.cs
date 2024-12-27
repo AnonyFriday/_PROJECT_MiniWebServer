@@ -2,11 +2,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using WebServer.SDK;
+using WebServer.SDK.Middlewares;
 using WebServer.SDK.RequestReaders;
 using WebServer.SDK.Requests;
 using WebServer.SDK.Responses;
 using WebServer.SDK.Responses.BodyWriters;
 using WebServer.SDK.ResponseWriters;
+using WebServer.Server.Middlewares;
 using WebServer.Server.RequestReaders;
 
 namespace WebServer.Server;
@@ -22,6 +24,11 @@ public class Worker : BackgroundService
     private readonly IRequestReaderFactory _requestReaderFactory;
     private readonly IResponseWriterFactory _responseWriterFactory;
     private List<ClientConnection> _clientConnections;
+
+    // ... --> ... --> NotFoundMiddleware --> NullMiddleware
+    // Null Object Design Pattern
+    private readonly Tuple<IMiddleware, IMiddleware> firstMiddleware =
+        new(new NotFoundMiddleware(), new NullMiddleware());
 
     // ===========================
     // === Constructors
@@ -92,28 +99,32 @@ public class Worker : BackgroundService
         try
         {
             // 1. Create 1 cancellation token restricted reading request in 3s
-            var cts = new CancellationTokenSource();
-            var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, stoppingToken).Token;
+            var readingRequestCancellationTokenSource = new CancellationTokenSource(3000);
             IRequestReader requestReader = _requestReaderFactory.Create(clientSocket);
             IResponseWriter responseWriter = _responseWriterFactory.Create(clientSocket);
 
             // 2. Create Request Object and Parsing the incoming string request into Request Object
-            WRequest request = await requestReader.ReadRequestAsync(combinedToken);
+            WRequest request = await requestReader.ReadRequestAsync(CancellationTokenSource
+                .CreateLinkedTokenSource(readingRequestCancellationTokenSource.Token, stoppingToken).Token);
 
             // 3. Create Response Object
-            var fakeContent =
-                "<!DOCTYPE html>\n<html>\n<body>\n\n<h1>My First Heading</h1>\n<p>My first paragraph.</p>\n\n</body>\n</html>";
-            
-            WResponse response = new WResponse()
-            {
-                ContentType = "text/html;charset=utf-8",
-                ContentLength = fakeContent.Length,
-                ResponseBodyWriter = new StringResponseBodyWriter(fakeContent)
-            };
+            WResponse response = new WResponse();
 
-            // 4. Handle Request  
+            // 4. Capture Request and passthrough Middleware Chain
+            // - after 15s, if haven't finished the processing, then return notfound
+            var invokeCancellationTokenSource = new CancellationTokenSource(15000);
+            await InvokeMiddlewareChainAsync(
+                new MiddlewareContext
+                {
+                    Request = request,
+                    Response = response
+                },
+                CancellationTokenSource.CreateLinkedTokenSource(
+                    invokeCancellationTokenSource.Token, stoppingToken).Token);
 
-            // 5. Send response back to the client
+            // 5. Handle Request  
+
+            // 6. Send response back to the client
             await responseWriter.SendRespondToClientAsync(response);
         }
         catch (Exception ex)
@@ -125,5 +136,15 @@ public class Worker : BackgroundService
             // Close the client socket
             clientSocket.Close();
         }
+    }
+
+    /// <summary>
+    /// Invoke the chainlink of middleware
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="cancellationToken"></param>
+    private async Task InvokeMiddlewareChainAsync(MiddlewareContext context, CancellationToken cancellationToken)
+    {
+        await firstMiddleware.Item1.InvokeAsync(context, firstMiddleware.Item2, cancellationToken);
     }
 }

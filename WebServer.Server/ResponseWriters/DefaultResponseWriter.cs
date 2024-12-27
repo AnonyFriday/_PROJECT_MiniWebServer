@@ -41,7 +41,7 @@ public class DefaultResponseWriter : IResponseWriter
             reasonPhrase = WHttpResponsePhrases.GetByCode(response.ResponseCode);
         }
 
-        string statusLine = string.Join(" ", response.ProtocolVersion, response.ResponseCode, reasonPhrase);
+        string statusLine = string.Join(" ", response.ProtocolVersion, (int)response.ResponseCode, reasonPhrase);
 
         await textWriterStream.WriteLineAsync(statusLine);
         await textWriterStream.WriteLineAsync($"Content-Type: {response.ContentType}");
