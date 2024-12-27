@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 
-namespace WebServer.Server.Requests;
+namespace WebServer.Server.Dtos.Requests;
 
 public class HeaderLine
 {

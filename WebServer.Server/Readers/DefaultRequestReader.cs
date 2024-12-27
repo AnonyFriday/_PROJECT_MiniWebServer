@@ -1,10 +1,9 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using WebServer.SDK;
-using WebServer.Server.Requests;
-using WebServer.Server.Requests.Readers;
+using WebServer.Server.Dtos.Requests;
 
-namespace WebServer.Server.Dtos.Requests.Readers;
+namespace WebServer.Server.Readers;
 
 public class DefaultRequestReader : IRequestReader
 {
@@ -13,16 +12,16 @@ public class DefaultRequestReader : IRequestReader
     // ===========================
 
     private readonly ILogger<DefaultRequestReader> _logger;
-    private readonly Socket _clientSocket;
+    private readonly Socket _socket;
 
     // ===========================
     // === Constructors
     // ===========================
 
-    public DefaultRequestReader(ILogger<DefaultRequestReader> logger, Socket clientSocket)
+    public DefaultRequestReader(ILogger<DefaultRequestReader> logger, Socket socket)
     {
         _logger = logger;
-        _clientSocket = clientSocket;
+        _socket = socket;
     }
 
     // ===========================
@@ -37,7 +36,7 @@ public class DefaultRequestReader : IRequestReader
     /// <returns></returns>
     public async Task<WRequest> ReadRequestAsync(CancellationToken cancellationTokenSource)
     {
-        var byteStream = new NetworkStream(_clientSocket);
+        var byteStream = new NetworkStream(_socket);
         var textReader = new StreamReader(byteStream, Encoding.UTF8);
         var requestBuilder = new RequestBuilder();
 

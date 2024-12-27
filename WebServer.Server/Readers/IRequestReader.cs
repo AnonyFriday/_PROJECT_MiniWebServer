@@ -1,7 +1,6 @@
-﻿using System.Net.Sockets;
-using WebServer.SDK;
+﻿using WebServer.SDK;
 
-namespace WebServer.Server.Requests.Readers;
+namespace WebServer.Server.Readers;
 
 public interface IRequestReader
 {

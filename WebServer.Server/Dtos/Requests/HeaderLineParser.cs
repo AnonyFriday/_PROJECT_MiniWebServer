@@ -1,4 +1,4 @@
-﻿namespace WebServer.Server.Requests;
+﻿namespace WebServer.Server.Dtos.Requests;
 
 public static class HeaderLineParser
 {

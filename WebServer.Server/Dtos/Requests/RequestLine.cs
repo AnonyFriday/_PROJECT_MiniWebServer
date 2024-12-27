@@ -1,6 +1,6 @@
 ﻿using WebServer.SDK;
 
-namespace WebServer.Server.Requests;
+namespace WebServer.Server.Dtos.Requests;
 
 public class RequestLine
 {
