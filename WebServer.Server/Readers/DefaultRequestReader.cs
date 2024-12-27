@@ -37,12 +37,12 @@ public class DefaultRequestReader : IRequestReader
     public async Task<WRequest> ReadRequestAsync(CancellationToken cancellationTokenSource)
     {
         var byteStream = new NetworkStream(_socket);
-        var textReader = new StreamReader(byteStream, Encoding.UTF8);
+        var textReaderStream = new StreamReader(byteStream, Encoding.UTF8);
         var requestBuilder = new RequestBuilder();
 
         // Instead of checking key and mapping to WRequest for multiple
         // of methods: GET, POST, PUT, DELETE, we create
-        var aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
+        var aLineOfRequestString = await textReaderStream.ReadLineAsync(cancellationTokenSource);
 
         // Parsing the Request Line 
         if (!string.IsNullOrEmpty(aLineOfRequestString))
@@ -58,7 +58,7 @@ public class DefaultRequestReader : IRequestReader
         }
 
         // Parsing Header Lines
-        aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
+        aLineOfRequestString = await textReaderStream.ReadLineAsync(cancellationTokenSource);
         while (!string.IsNullOrEmpty(aLineOfRequestString))
         {
             // Logging
@@ -68,7 +68,7 @@ public class DefaultRequestReader : IRequestReader
             if (HeaderLineParser.TryParse(aLineOfRequestString, out var headerLine))
             {
                 requestBuilder.AddHeaderLine(headerLine);
-                aLineOfRequestString = await textReader.ReadLineAsync(cancellationTokenSource);
+                aLineOfRequestString = await textReaderStream.ReadLineAsync(cancellationTokenSource);
             }
         }
 

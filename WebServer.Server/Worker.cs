@@ -89,7 +89,7 @@ public class Worker : BackgroundService
             IRequestReader requestReader =
                 new DefaultRequestReader(_loggerFactory.CreateLogger<DefaultRequestReader>(), clientSocket);
 
-            // Parsing the incoming text into request object
+            // Create Request Object and Parsing the incoming string request into Request Object
             WRequest request = await requestReader.ReadRequestAsync(combinedToken);
 
             // Create Response Object
@@ -117,9 +117,13 @@ public class Worker : BackgroundService
     private async Task SendRespondToClientAsync(Socket clientSocket)
     {
         var byteStream = new NetworkStream(clientSocket);
-        var textWriter = new StreamWriter(byteStream);
+        var textWriterStream = new StreamWriter(byteStream);
 
-        await textWriter.WriteLineAsync("200 OK");
-        await textWriter.FlushAsync();
+        await textWriterStream.WriteLineAsync("HTTP/1.1 200 OK");
+        await textWriterStream.WriteLineAsync("Content-Type: text/plain");
+        await textWriterStream.WriteLineAsync("");
+        await textWriterStream.WriteLineAsync("Hello World!");
+
+        await textWriterStream.FlushAsync();
     }
 }
