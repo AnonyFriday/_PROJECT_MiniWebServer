@@ -1,6 +1,6 @@
 ﻿using WebServer.SDK.Middlewares;
 
-namespace WebServer.Server.Middlewares;
+namespace WebServer.Server.Middlewares.MiddlewareChain;
 
 /// <summary>
 /// Act as a wrapper per middleware and current pointer in the linked list data structure <br />

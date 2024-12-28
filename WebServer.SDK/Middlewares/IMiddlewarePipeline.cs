@@ -1,6 +1,4 @@
-﻿using WebServer.SDK.Middlewares;
-
-namespace WebServer.Server.Middlewares;
+﻿namespace WebServer.SDK.Middlewares;
 
 /// <summary>
 /// Interface to manage the entire middleware

@@ -1,6 +1,6 @@
 ﻿using WebServer.SDK.Middlewares;
 
-namespace WebServer.Server.Middlewares;
+namespace WebServer.Server.Middlewares.MiddlewareChain;
 
 /// <summary>
 /// A class manages all wrapper on middleware, which based on idea of Linkedlist

@@ -1,6 +1,6 @@
 ﻿using WebServer.SDK.Middlewares;
 
-namespace WebServer.Server.Middlewares;
+namespace WebServer.Server.Middlewares.MiddlewareChain;
 
 public class NullCallable : ICallable
 {

@@ -47,7 +47,7 @@ public class Worker : BackgroundService
         // AuthenticationMiddleware --> NotFoundMidddleware--> NullMiddleware
         _middlewarePipeline.AddMiddleware(new NotFoundMiddleware());
         _middlewarePipeline.AddMiddleware(new StaticContentMiddleware());
-        _middlewarePipeline.AddMiddleware(new AuthenticationMiddleware());
+        // _middlewarePipeline.AddMiddleware(new AuthenticationMiddleware());
     }
 
     // ===========================
