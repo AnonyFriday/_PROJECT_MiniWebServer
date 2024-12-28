@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using WebServer.Middleware.Authentication;
 using WebServer.Middleware.StaticContent;
 using WebServer.SDK;
 using WebServer.SDK.Middlewares;
@@ -48,7 +49,8 @@ public class Worker : BackgroundService
 
         // Adding Middlewares
         AddMiddleware(new NotFoundMiddleware());
-        AddMiddleware(new StaticContentMiddleware());
+        // AddMiddleware(new StaticContentMiddleware());
+        AddMiddleware(new AuthenticationMiddleware());
     }
 
     // ===========================
@@ -130,9 +132,7 @@ public class Worker : BackgroundService
                 CancellationTokenSource.CreateLinkedTokenSource(
                     invokeCancellationTokenSource.Token, stoppingToken).Token);
 
-            // 5. Handle Request  
-
-            // 6. Send response back to the client
+            // 5. Send response back to the client
             await responseWriter.SendRespondToClientAsync(response);
         }
         catch (Exception ex)
