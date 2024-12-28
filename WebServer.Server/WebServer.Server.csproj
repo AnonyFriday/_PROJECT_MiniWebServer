@@ -18,10 +18,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dtos\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Update="wwwroot\index_demo.html">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
