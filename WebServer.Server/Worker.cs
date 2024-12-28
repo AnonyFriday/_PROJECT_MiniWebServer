@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using WebServer.Middleware.StaticContent;
 using WebServer.SDK;
 using WebServer.SDK.Middlewares;
 using WebServer.SDK.RequestReaders;
@@ -25,10 +26,12 @@ public class Worker : BackgroundService
     private readonly IResponseWriterFactory _responseWriterFactory;
     private List<ClientConnection> _clientConnections;
 
-    // ... --> ... --> NotFoundMiddleware --> NullMiddleware
-    // Null Object Design Pattern
-    private readonly Tuple<IMiddleware, IMiddleware> firstMiddleware =
-        new(new NotFoundMiddleware(), new NullMiddleware());
+    /// <summary>
+    /// Middleware Chainlink with wrapper callable
+    /// NotFoundMiddleware --> ... --> ... --> ... --> NullMiddleware
+    /// Null Object Design Pattern
+    /// </summary>
+    private ICallable firstMiddleware = new NullCallable();
 
     // ===========================
     // === Constructors
@@ -42,6 +45,10 @@ public class Worker : BackgroundService
         _requestReaderFactory = requestReaderFactory;
         _responseWriterFactory = responseWriterFactory;
         _clientConnections = new List<ClientConnection>();
+
+        // Adding Middlewares
+        AddMiddleware(new NotFoundMiddleware());
+        AddMiddleware(new StaticContentMiddleware());
     }
 
     // ===========================
@@ -110,7 +117,8 @@ public class Worker : BackgroundService
             // 3. Create Response Object
             WResponse response = new WResponse();
 
-            // 4. Capture Request and passthrough Middleware Chain
+            // 4. Capture Request and passthrough Middleware Chain 
+            // - original Request and Response object will be modified here
             // - after 15s, if haven't finished the processing, then return notfound
             var invokeCancellationTokenSource = new CancellationTokenSource(15000);
             await InvokeMiddlewareChainAsync(
@@ -139,12 +147,25 @@ public class Worker : BackgroundService
     }
 
     /// <summary>
-    /// Invoke the chainlink of middleware
+    /// Add middleware into the chain link with wrapper.
+    /// Push at Head of chain link
     /// </summary>
-    /// <param name="context"></param>
-    /// <param name="cancellationToken"></param>
-    private async Task InvokeMiddlewareChainAsync(MiddlewareContext context, CancellationToken cancellationToken)
+    /// <param name="middleware"></param>
+    public void AddMiddleware(IMiddleware middleware)
     {
-        await firstMiddleware.Item1.InvokeAsync(context, firstMiddleware.Item2, cancellationToken);
+        // Create new wrapper around thd middleware
+        firstMiddleware = new Callable()
+        {
+            CurrMiddleware = middleware,
+            NextCallable = firstMiddleware
+        };
+    }
+
+    /// <summary>
+    /// Execute the middleware chain
+    /// </summary>
+    public async Task InvokeMiddlewareChainAsync(MiddlewareContext middlewareContext, CancellationToken stoppingToken)
+    {
+        firstMiddleware.InvokeAsync(middlewareContext, stoppingToken);
     }
 }

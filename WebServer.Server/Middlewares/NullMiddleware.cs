@@ -8,7 +8,8 @@ namespace WebServer.Server.Middlewares;
 /// </summary>
 public class NullMiddleware : IMiddleware
 {
-    public Task InvokeAsync(MiddlewareContext context, IMiddleware nextMiddleware, CancellationToken cancellationToken)
+    public Task InvokeAsync(MiddlewareContext context, ICallable nextMiddlewareCallable,
+        CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

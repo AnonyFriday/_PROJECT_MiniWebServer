@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\WebServer.Middleware.StaticContent\WebServer.Middleware.StaticContent.csproj" />
       <ProjectReference Include="..\WebServer.SDK\WebServer.SDK.csproj" />
     </ItemGroup>
 

@@ -9,5 +9,5 @@ public interface IMiddleware
     /// <param name="nextMiddleware"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task InvokeAsync(MiddlewareContext context, IMiddleware nextMiddleware, CancellationToken cancellationToken);
+    Task InvokeAsync(MiddlewareContext context, ICallable nextMiddlewareCallable, CancellationToken cancellationToken);
 }

@@ -24,14 +24,14 @@ public class NotFoundMiddleware : IMiddleware
     /// <param name="context"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public Task InvokeAsync(MiddlewareContext context, IMiddleware nextMiddleware,
+    public Task InvokeAsync(MiddlewareContext context, ICallable nextMiddlewareCallable,
         CancellationToken cancellationToken)
     {
         // 1. Process Request
-        // ...
+        Console.WriteLine("NotFoundMiddleware: Processing request...");
 
-        // 2. Execute the next middleware
-        nextMiddleware.InvokeAsync(context, new NullMiddleware(), cancellationToken);
+        // 2. Execute the next middleware callable
+        nextMiddlewareCallable.InvokeAsync(context, cancellationToken);
 
         // 3. Return Response
         context.Response.ContentLength = 0;
