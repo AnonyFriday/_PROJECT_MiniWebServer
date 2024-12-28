@@ -44,7 +44,7 @@ public class Worker : BackgroundService
         _clientConnections = new List<ClientConnection>();
 
         // Add Middlewares
-        // AuthenticationMiddleware --> NotFoundMidddleware--> NullMiddleware
+        // AuthenticationMiddleware --> StaticContentMiddleware -- >NotFoundMidddleware--> NullMiddleware
         _middlewarePipeline.AddMiddleware(new NotFoundMiddleware());
         _middlewarePipeline.AddMiddleware(new StaticContentMiddleware());
         // _middlewarePipeline.AddMiddleware(new AuthenticationMiddleware());
