@@ -11,6 +11,7 @@ public class AuthenticationMiddleware : IMiddleware
     public async Task InvokeAsync(MiddlewareContext context, ICallable nextMiddlewareCallable,
         CancellationToken cancellationToken)
     {
+        // If not authorized then return with respond immediately
         if (!context.Request.Headers.ContainsKey("Authorization"))
         {
             context.Response.ResponseCode = WHttpResponseStatusCodes.ClientError_Unauthorized;
